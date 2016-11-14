@@ -2,7 +2,7 @@ package pgstore
 
 import (
 	"database/sql"
-	"encoding/base32"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http"
@@ -119,7 +119,7 @@ func (db *PGStore) Save(r *http.Request, w http.ResponseWriter, session *session
 	if session.ID == "" {
 		// Generate a random session ID key suitable for storage in the DB
 		session.ID = strings.TrimRight(
-			base32.StdEncoding.EncodeToString(
+			base64.URLEncoding.EncodeToString(
 				securecookie.GenerateRandomKey(32),
 			), "=")
 	}
@@ -228,7 +228,7 @@ func (db *PGStore) destroy(session *sessions.Session) error {
 func (db *PGStore) createSessionsTable() error {
 	stmt := `CREATE TABLE IF NOT EXISTS http_sessions (
               id BIGSERIAL PRIMARY KEY,
-              key BYTEA,
+              key NAME NOT NULL,
               data BYTEA,
               created_on TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
               modified_on TIMESTAMPTZ,
