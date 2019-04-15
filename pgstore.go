@@ -226,15 +226,7 @@ func (db *PGStore) destroy(session *sessions.Session) error {
 }
 
 func (db *PGStore) createSessionsTable() error {
-	stmt := `CREATE TABLE IF NOT EXISTS http_sessions (
-              id BIGSERIAL PRIMARY KEY,
-              key NAME NOT NULL,
-              data BYTEA,
-              created_on TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-              modified_on TIMESTAMPTZ,
-              expires_on TIMESTAMPTZ);`
-
-	_, err := db.DbPool.Exec(stmt)
+	_, err := db.DbPool.Exec(createSchema)
 	if err != nil {
 		msg := fmt.Sprintf("Unable to create http_sessions table in the database: %s\n", err.Error())
 		return errors.New(msg)
@@ -268,3 +260,15 @@ func (db *PGStore) update(s *PGSession) error {
 
 	return err
 }
+
+const (
+	createSchema = `CREATE TABLE IF NOT EXISTS http_sessions (
+	id BIGSERIAL ,
+	key NAME NOT NULL,
+	data BYTEA,
+	created_on TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+	modified_on TIMESTAMPTZ,
+	expires_on TIMESTAMPTZ,
+	PRIMARY KEY(id)
+);`
+)
